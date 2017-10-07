@@ -66,7 +66,7 @@ def bot():
     y = pos["Y"]
     house = p["HouseLocation"]
     player = Player(p["Health"], p["MaxHealth"], Point(x,y),
-                    Point(house["X"], house["Y"]),
+                    Point(house["X"], house["Y"]), p["Score"],
                     p["CarriedResources"], p["CarryingCapacity"])
 
     # Map
@@ -85,10 +85,12 @@ def bot():
             otherPlayers.append({player_name: player_info })
     (action, target) = procedural.choose_action(player, otherPlayers, deserialized_map)
     
+    # print(pos)
+    # print(player.Position)
+    x_distance = target.X - x
+    y_distance = target.Y - y
+    
     if player.CarriedRessources != player.CarryingCapacity:
-        
-        x_distance = target.X - x
-        y_distance = target.Y - y
         if x_distance < 0:
             return create_move_action(Point(x-1,y))
         elif x_distance >0:
@@ -98,17 +100,21 @@ def bot():
         elif y_distance >1:
             return create_move_action(Point(x,y+1))
         else:
-            create_collect_action(target)
+            return create_collect_action(target)
     else:
         target = player.HouseLocation
+        x_distance = target.X - x
+        y_distance = target.Y - y
         if x_distance < 0:
             return create_move_action(Point(x-1,y))
-        elif x_distance >0:
+        elif x_distance > 0:
             return create_move_action(Point(x+1,y))
         elif y_distance < 0:
             return create_move_action(Point(x,y-1))
-        elif y_distance >0:
-            return create_move_action(Point(x,y+1))            
+        elif y_distance > 0:
+            return create_move_action(Point(x, y+1))
+        else:
+            return create_move_action(Point(x, y))
     # return decision
     #return create_move_action(Point(0,1))
 

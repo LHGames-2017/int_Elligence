@@ -27,7 +27,7 @@ def is_weaker_player_near(player, other_players):
 def establish_surroundings(player, deserialized_map):
     around = []
     x = player.Position.X
-    y = player.Position.y
+    y = player.Position.Y
     around.append(deserialized_map[x+1][y].Content)
     around.append(deserialized_map[x-1][y].Content)
     around.append(deserialized_map[x][y+1].Content)
@@ -41,15 +41,15 @@ def choose_action(player, other_players, deserialized_map):
     target = structs.Point()
     (near, other_p_pos) = is_weaker_player_near(player, other_players)
     #if low_health and potion
-    if near:
-        action = structs.ActionTypes.AttackAction
-        target = other_p_pos
-    elif structs.TileContent.Resource in surroundings and player.CarryingCapacity > player.CarriedRessources:
+    # if near:
+    #     action = structs.ActionTypes.AttackAction
+    #     target = other_p_pos
+    if structs.TileContent.Resource in surroundings and player.CarryingCapacity > player.CarriedRessources:
         action = structs.ActionTypes.CollectAction
         target = [surroundings == structs.TileContent.Resource][0]
-    elif structs.TileContent.Shop in surroundings and player.CarriedRessources >= 5000:
-        action = structs.ActionTypes.PurchaseAction
-        target = [surroundings == structs.TileContent.Shop][0]
+    # elif structs.TileContent.Shop in surroundings and player.CarriedRessources >= 5000:
+    #     action = structs.ActionTypes.PurchaseAction
+    #     target = [surroundings == structs.TileContent.Shop][0]
     elif structs.TileContent.House in surroundings: #Ajouter 2e condition
         action = structs.ActionTypes.UpgradeAction
         target = [surroundings == structs.TileContent.Shop][0]
