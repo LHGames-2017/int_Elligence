@@ -6,8 +6,6 @@
 # http://scikit-learn.org/stable/auto_examples/applications/plot_stock_market.html
 
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
 
 # defines the reward/connection graph
 def print_deserialized_map(map):
@@ -20,13 +18,13 @@ def print_deserialized_map(map):
 def build_r(deserialized_map):
     r = []
     switcher = {
-        0: 0,
-        1: 100,
-        2: 50,
-        3: 200,
+        0: 0000,
+        1: 0100,
+        2: 0050,
+        3: 0200,
         4: -100,
         5: -1000,
-        6: 50,
+        6: 0050,
     }
     for i in range(20):
         col = []

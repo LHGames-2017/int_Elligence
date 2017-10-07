@@ -9,6 +9,7 @@ from structs import *
 import DQN
 
 app = Flask(__name__)
+q = numpy.zeros((20, 20))
 
 def create_action(action_type, target):
     actionContent = ActionContent(action_type, target.__dict__)
@@ -91,8 +92,8 @@ def bot():
     # DQN.print_deserialized_map(deserialized_map)c
 
     r = DQN.build_r(deserialized_map)
-    q = numpy.zeros_like(r)
-    q = DQN.apply_QL(r)
+    global q
+    q = DQN.apply_QL(q, r)
     # return decision
     return create_move_action(Point(0, 1))
 
