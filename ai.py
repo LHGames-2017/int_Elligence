@@ -91,7 +91,8 @@ def bot():
     # DQN.print_deserialized_map(deserialized_map)c
 
     r = DQN.build_r(deserialized_map)
-    DQN.apply_QL(r)
+    q = numpy.zeros_like(r)
+    q = DQN.apply_QL(r)
     # return decision
     return create_move_action(Point(0, 1))
 

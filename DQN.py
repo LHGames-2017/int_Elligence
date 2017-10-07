@@ -9,7 +9,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 
-
 # defines the reward/connection graph
 def print_deserialized_map(map):
     for i in range(20):
@@ -37,10 +36,7 @@ def build_r(deserialized_map):
         r.append(col)
     return np.array(r)
 
-q = np.zeros_like(r)
-
-
-def update_q(state, next_state, action, alpha, gamma, r):
+def update_q(state, next_state, action, alpha, gamma, r, q):
     rsa = r[state, action]
     qsa = q[state, action]
     new_q = qsa + alpha * (rsa + gamma * max(q[next_state, :]) - qsa)
@@ -50,83 +46,8 @@ def update_q(state, next_state, action, alpha, gamma, r):
     q[state][q[state] > 0] = rn
     return r[state, action]
 
-
-def show_traverse():
-    # show all the greedy traversals
-    for i in range(len(q)):
-        current_state = i
-        traverse = "%i -> " % current_state
-        n_steps = 0
-        while current_state != 5 and n_steps < 20:
-            next_state = np.argmax(q[current_state])
-            current_state = next_state
-            traverse += "%i -> " % current_state
-            n_steps = n_steps + 1
-        # cut off final arrow
-        traverse = traverse[:-4]
-        print("Greedy traversal for starting state %i" % i)
-        print(traverse)
-        print("")
-
-
-def show_q():
-    # show all the valid/used transitions
-    coords = np.array([[2, 2],
-                       [4, 2],
-                       [5, 3],
-                       [4, 4],
-                       [2, 4],
-                       [5, 2]])
-    # invert y axis for display
-    coords[:, 1] = max(coords[:, 1]) - coords[:, 1]
-
-    plt.figure(1, facecolor='w', figsize=(10, 8))
-    plt.clf()
-    ax = plt.axes([0., 0., 1., 1.])
-    plt.axis('off')
-
-    plt.scatter(coords[:, 0], coords[:, 1], c='r')
-
-    start_idx, end_idx = np.where(q > 0)
-    segments = [[coords[start], coords[stop]]
-                for start, stop in zip(start_idx, end_idx)]
-    values = np.array(q[q > 0])
-    # bump up values for viz
-    values = values
-    lc = LineCollection(segments,
-                        zorder=0, cmap=plt.cm.hot_r)
-    lc.set_array(values)
-    ax.add_collection(lc)
-
-    verticalalignment = 'top'
-    horizontalalignment = 'left'
-    for i in range(len(coords)):
-        x = coords[i][0]
-        y = coords[i][1]
-        name = str(i)
-        if i == 1:
-            y = y - .05
-            x = x + .05
-        elif i == 3:
-            y = y - .05
-            x = x + .05
-        elif i == 4:
-            y = y - .05
-            x = x + .05
-        else:
-            y = y + .05
-            x = x + .05
-
-        plt.text(x, y, name, size=10,
-                 horizontalalignment=horizontalalignment,
-                 verticalalignment=verticalalignment,
-                 bbox=dict(facecolor='w',
-                           edgecolor=plt.cm.spectral(float(len(coords))),
-                           alpha=.6))
-    plt.show()
-
 # Core algorithm
-def apply_QL(r):
+def apply_QL(r, q):
     gamma = 0.8
     alpha = 1.
     n_episodes = 1E3
@@ -167,12 +88,9 @@ def apply_QL(r):
                     action = actions[0]
                 next_state = action
             reward = update_q(current_state, next_state, action,
-                            alpha=alpha, gamma=gamma, r=r)
+                            alpha=alpha, gamma=gamma, r=r, q=q)
             # Goal state has reward 100
             if reward > 1:
                 goal = True
             current_state = next_state
-
-    print(q)
-    show_traverse()
-    show_q()
+    return q
