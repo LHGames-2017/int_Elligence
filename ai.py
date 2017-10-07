@@ -1,7 +1,12 @@
-from flask import Flask, request
-from structs import *
+"""Main"""
+#pylint: disable=C0111,C0103,W0614,W0611,W0401
+
 import json
 import numpy
+from flask import Flask, request
+from structs import *
+
+import DQN
 
 app = Flask(__name__)
 
@@ -81,10 +86,12 @@ def bot():
                                      player_info["MaxHealth"],
                                      Point(p_pos["X"], p_pos["Y"]))
 
-            otherPlayers.append({player_name: player_info })
+            otherPlayers.append({player_name: player_info})
 
+    DQN.print_deserialized_map(deserialized_map)
+    DQN.build_r(deserialized_map)
     # return decision
-    return create_move_action(Point(0,1))
+    return create_move_action(Point(0, 1))
 
 @app.route("/", methods=["POST"])
 def reponse():
@@ -94,4 +101,4 @@ def reponse():
     return bot()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3000)
+    app.run(host="0.0.0.0", port=8080)
