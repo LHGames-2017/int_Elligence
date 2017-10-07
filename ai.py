@@ -88,8 +88,10 @@ def bot():
 
             otherPlayers.append({player_name: player_info})
 
-    DQN.print_deserialized_map(deserialized_map)
-    DQN.build_r(deserialized_map)
+    # DQN.print_deserialized_map(deserialized_map)c
+
+    r = DQN.build_r(deserialized_map)
+    DQN.apply_QL(r)
     # return decision
     return create_move_action(Point(0, 1))
 

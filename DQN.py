@@ -32,20 +32,15 @@ def build_r(deserialized_map):
     for i in range(20):
         col = []
         for j in range(20):
-            col.append(switcher.get(deserialized_map[i][j]))
+            col.append(switcher[deserialized_map[i][j].Content])
         print(col)
         r.append(col)
+    return np.array(r)
 
-r = np.array([[-1, -1, -1, -1,  0,  -1],
-              [-1, -1, -1,  0, -1, 100],
-              [-1, -1, -1,  0, -1,  -1],
-              [-1,  0,  0, -1,  0,  -1],
-              [ 0, -1, -1,  0, -1, 100],
-              [-1,  0, -1, -1,  0, 100]]).astype("float32")
 q = np.zeros_like(r)
 
 
-def update_q(state, next_state, action, alpha, gamma):
+def update_q(state, next_state, action, alpha, gamma, r):
     rsa = r[state, action]
     qsa = q[state, action]
     new_q = qsa + alpha * (rsa + gamma * max(q[next_state, :]) - qsa)
@@ -131,7 +126,7 @@ def show_q():
     plt.show()
 
 # Core algorithm
-def apply_QL():
+def apply_QL(r):
     gamma = 0.8
     alpha = 1.
     n_episodes = 1E3
@@ -172,7 +167,7 @@ def apply_QL():
                     action = actions[0]
                 next_state = action
             reward = update_q(current_state, next_state, action,
-                            alpha=alpha, gamma=gamma)
+                            alpha=alpha, gamma=gamma, r=r)
             # Goal state has reward 100
             if reward > 1:
                 goal = True
