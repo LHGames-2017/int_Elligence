@@ -54,14 +54,15 @@ def choose_action(player, other_players, deserialized_map):
         action = structs.ActionTypes.UpgradeAction
         target = [surroundings == structs.TileContent.Shop][0]
     else:
-        move(player, deserialized_map)
+        target = move(player, deserialized_map)
+        action = structs.ActionTypes.MoveAction
     return (action, target)
 
 def move(player, deserialized_map):
     target = structs.Point()
-    if player.CarriedRessources == 5000:
-        target = find_nearest(player.Position, deserialized_map, structs.TileContent.Shop)
-    elif player.CarriedRessources > 5000:
+    #if player.CarriedRessources == 5000:
+        #target = find_nearest(player.Position, deserialized_map, structs.TileContent.Shop)
+    if player.CarriedRessources == player.CarryingCapacity:
         target = find_nearest(player.Position, deserialized_map, structs.TileContent.House)
     else:
         target = find_nearest(player.Position, deserialized_map, structs.TileContent.Resource)
@@ -77,4 +78,4 @@ def find_nearest(player_position, deserialized_map, desired_type):
             if tile.Content == desired_type and dist < min_dist:
                 nearest = structs.Point(tile.X, tile.Y)
                 min_dist = dist
-    return nearest, desired_type
+    return nearest

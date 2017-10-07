@@ -1,15 +1,11 @@
-"""Main"""
-#pylint: disable=C0111,C0103,W0614,W0611,W0401
 
-import json
-import numpy
 from flask import Flask, request
 from structs import *
-
-import DQN
+import json
+import numpy
+import procedural
 
 app = Flask(__name__)
-q = numpy.zeros((20, 20))
 
 def create_action(action_type, target):
     actionContent = ActionContent(action_type, target.__dict__)
@@ -76,7 +72,6 @@ def bot():
     # Map
     serialized_map = map_json["CustomSerializedMap"]
     deserialized_map = deserialize_map(serialized_map)
-
     otherPlayers = []
 
     for player_dict in map_json["OtherPlayers"]:
@@ -87,15 +82,35 @@ def bot():
                                      player_info["MaxHealth"],
                                      Point(p_pos["X"], p_pos["Y"]))
 
-            otherPlayers.append({player_name: player_info})
-
-    # DQN.print_deserialized_map(deserialized_map)c
-
-    # r = DQN.build_r(deserialized_map)
-    # global q
-    # q = DQN.apply_QL(q, r)
+            otherPlayers.append({player_name: player_info })
+    (action, target) = procedural.choose_action(player, otherPlayers, deserialized_map)
+    
+    if player.CarriedRessources != player.CarryingCapacity:
+        
+        x_distance = target.X - x
+        y_distance = target.Y - y
+        if x_distance < 0:
+            return create_move_action(Point(x-1,y))
+        elif x_distance >0:
+            return create_move_action(Point(x+1,y))
+        elif y_distance < 1:
+            return create_move_action(Point(x,y-1))
+        elif y_distance >1:
+            return create_move_action(Point(x,y+1))
+        else:
+            create_collect_action(target)
+    else:
+        target = player.HouseLocation
+        if x_distance < 0:
+            return create_move_action(Point(x-1,y))
+        elif x_distance >0:
+            return create_move_action(Point(x+1,y))
+        elif y_distance < 0:
+            return create_move_action(Point(x,y-1))
+        elif y_distance >0:
+            return create_move_action(Point(x,y+1))            
     # return decision
-    return create_move_action(Point(0, 1))
+    #return create_move_action(Point(0,1))
 
 @app.route("/", methods=["POST"])
 def reponse():
