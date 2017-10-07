@@ -91,9 +91,9 @@ def bot():
 
     # DQN.print_deserialized_map(deserialized_map)c
 
-    r = DQN.build_r(deserialized_map)
-    global q
-    q = DQN.apply_QL(q, r)
+    # r = DQN.build_r(deserialized_map)
+    # global q
+    # q = DQN.apply_QL(q, r)
     # return decision
     return create_move_action(Point(0, 1))
 
