@@ -5,6 +5,7 @@ import json
 import numpy
 from flask import Flask, request
 from structs import *
+from random import randint
 
 import DQN
 
@@ -69,7 +70,7 @@ def bot():
     y = pos["Y"]
     house = p["HouseLocation"]
     player = Player(p["Health"], p["MaxHealth"], Point(x,y),
-                    Point(house["X"], house["Y"]),
+                    Point(house["X"], house["Y"]),p["Score"],
                     p["CarriedResources"], p["CarryingCapacity"])
 
     # Map
@@ -88,13 +89,58 @@ def bot():
 
             otherPlayers.append({player_name: player_info})
 
-    # DQN.print_deserialized_map(deserialized_map)c
-
-    r = DQN.build_r(deserialized_map)
-    q = numpy.zeros_like(r)
-    q = DQN.apply_QL(r)
-    # return decision
-    return create_move_action(Point(0, 1))
+    #Pour ce projet, nous implémentons l'algorithme du q learning
+    
+    #On centre la carte sur notre personnage
+    x = x-10
+    y = y-10
+    
+    #Ajuste Q max
+    gamma = 0.5
+    
+    r = DQN.build_r(deserialized_map) #construit r
+    q = numpy.zeros_like(r) #construit q et initialise tout à 0
+    
+    action = DQN.choisir_action(x,y,r)    #Donne prochaine action à exécuter
+   
+    #Donne next State
+    nextPosX = x
+    nextPosY = y
+    
+    # modifie le prochain états (les pos. en x et y) pour trouver qmax
+    if (action == 0):
+        nextPosX = x-1
+    elif (action == 1):
+        nextPosX = x+1
+    elif (action == 2):
+        nextPosY = y-1
+    elif (action == 3):
+        nextPosY = y+1
+    
+    
+    maxQ = DQN.findMaxQ(nextPosX, nextPosY, q) #DonneLa prochaine action pour le prochain état.
+    
+    q[x][y][action] = r[x][y][action] + gamma*maxQ #update q.C'est la formule de Bell
+    
+    #On met l'état suivant comme l'état présent pour le prochain tour
+    x=nextPosX
+    y=nextPosY
+    # On décentre la carte du joueur pour ne pas causer prob. avec serveur
+    x = x+10
+    y=y+10
+    
+    print(x,y,action,player.CarriedRessources)
+    
+    if(action < 4):
+        return create_move_action(Point(x, y))
+    elif (action == 4):
+        return create_collect_action(Point(x-1,y))
+    elif (action == 5):
+        return create_collect_action(Point(x+1,y))
+    elif (action == 6):
+        return create_collect_action(Point(x,y-1))
+    elif (action == 7):
+        return create_collect_action(Point(x,y+1))
 
 @app.route("/", methods=["POST"])
 def reponse():
